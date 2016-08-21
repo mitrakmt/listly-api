@@ -35,13 +35,16 @@ app.get('/todos', function (request, response) {
 
 app.get('/todos/:id', function (request, response) {
   var todoId = parseInt(request.params.id, 10);
-  var matchedTodo = _.findWhere(todos, {id: todoId});
 
-  if (matchedTodo) {
-    response.json(matchedTodo);
-  } else {
-    response.status(404).send();
-  }
+  db.todo.findById(todoId).then(function(todo) {
+    if (!!todo) {
+      response.json(todo.toJSON())
+    } else {
+      response.staus(404).send();
+    }
+  }, function(error) {
+    response.staus(500).send(error);
+  })
 });
 
 // Delete Todos
@@ -65,18 +68,6 @@ app.post('/todos', function (request, response) {
   }, function(error) {
     response.status(400).send(error);
   });
-
-  // if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
-  //   return response.status(400).send();
-  // }
-  //
-  // body.description = body.description.trim();
-  //
-  // body.id = todoNextId++;
-  //
-  // todos.push(body);
-  //
-  // response.json(body);
 });
 
 // Update Todo
