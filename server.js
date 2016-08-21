@@ -28,6 +28,18 @@ app.get('/todos/:id', function (request, response) {
   }
 });
 
+app.delete('/todos/:id', function (request, response) {
+  var todoId = parseInt(request.params.id, 10);
+  var matchedTodo = _.findWhere(todos, {id: todoId});
+
+  if (!matchedTodo) {
+    response.status(404).json({"error": "No todo found with that ID."});
+  } else {
+    todos = _.without(todos, matchedTodo);
+    response.json(matchedTodo);
+  }
+});
+
 app.post('/todos', function (request, response) {
 
   var body = _.pick(request.body, 'description', 'completed');
