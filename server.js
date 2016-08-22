@@ -117,7 +117,7 @@ app.post('/users', function (request, response) {
   var body = _.pick(request.body, 'email', 'password');
 
   db.user.create(body).then(function (user) {
-    response.json(user.toJSON())
+    response.json(user.toPublicJSON())
   }, function (error) {
     response.status(400).json(error);
   });
