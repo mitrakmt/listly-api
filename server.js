@@ -86,28 +86,31 @@ app.post('/todos', function (request, response) {
 // Update Todo
 app.put('/todos/:id', function (request, response) {
   var todoId = parseInt(request.params.id, 10);
-  var matchedTodo = _.findWhere(todos, {id: todoId});
   var body = _.pick(request.body, 'description', 'completed');
-  var validAttributes = {};
+  var attributes = {};
 
-  if (!matchedTodo) {
-    return response.status(404).send();
+
+  if (body.hasOwnProperty('completed')) {
+    attributes.completed = body.completed;
   }
 
-  if (body.hasOwnProperty('completed') && _.isBoolean(body.completed)) {
-    validAttributes.completed = body.completed;
-  } else if (body.hasOwnProperty('completed')) {
-    return response.status(400).send();
-  };
+  if (body.hasOwnProperty('description')) {
+    attributes.description = body.description;
+  }
 
-  if (body.hasOwnProperty('description') && _.isString(body.description) && body.description.length > 0) {
-    validAttributes.description = body.description;
-  } else if (body.hasOwnProperty('description')) {
-    return response.status(400).send();
-  };
-
-  _.extend(matchedTodo, validAttributes);
-  response.json(matchedTodo)
+  db.todo.findById(todoId).then(function(todo) {
+    if (todo) {
+      todo.update(attributes).then(function (todo) {
+          response.json(todo.toJSON());
+        }, function (error) {
+          response.status(400).json(error);
+        })
+    } else {
+      response.status(404).send();
+    }
+  }, function () {
+    response.status(500).send();
+  })
 });
 
 db.sequelize.sync().then(function() {
