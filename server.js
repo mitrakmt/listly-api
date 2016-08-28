@@ -4,13 +4,24 @@ var _ = require('underscore');
 var db = require('./db.js');
 var bcrypt = require('bcryptjs');
 var middleware = require('./middleware.js')(db);
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+var request = require('request');
 
 var app = express();
 var PORT = process.env.PORT || 3000;
 var todos = [];
 var todoNextId = 1;
 
+app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.json());
+
+app.use(function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', "*");
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    next();
+})
 
 app.get('/', function (request, response) {
   response.send('Todo API root')
@@ -153,7 +164,6 @@ app.post('/users/login', function (request, response) {
     userInstance = user;
     console.log("User instance: " + userInstance);
 
-    debugger;
     return db.token.create({
       token: token
     });
@@ -172,6 +182,14 @@ app.delete('/users/login', middleware.requireAuthentication, function (request, 
     response.status(500).send();
   })
 })
+
+request({url: 'https://mitrakmt-todo-api.herokuapp.com/', json: true}, function(err, res, json) {
+  if (err) {
+    throw err;
+  }
+  console.log(json);
+});
+
 
 db.sequelize.sync({force: true}).then(function() {
   app.listen(PORT, function () {
