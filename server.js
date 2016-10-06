@@ -94,7 +94,6 @@ app.delete('/todos/:id', middleware.requireAuthentication, function (request, re
     })
   });
 
-
 app.post('/todos', middleware.requireAuthentication, function (request, response) {
   var body = _.pick(request.body, 'description', 'completed');
 
@@ -183,7 +182,7 @@ app.delete('/users/login', middleware.requireAuthentication, function (request, 
   })
 })
 
-request({url: 'https://mitrakmt-todo-api.herokuapp.com/', json: true}, function(err, res, json) {
+request({url: 'https://mylistly.com/', json: true}, function(err, res, json) {
   if (err) {
     throw err;
   }
